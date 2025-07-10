@@ -23,9 +23,14 @@ FROM node:18-alpine AS release
 # Set working directory
 WORKDIR /app
 
+# Copy package files
+COPY --from=builder /app/package.json /app/package-lock.json ./
+
+# Install production dependencies
+RUN npm ci --omit=dev
+
 # Copy the build files from the previous stage
-COPY --from=builder /app/dist /app/dist
-COPY --from=builder /app/package.json /app/package-lock.json /app/node_modules /app/
+COPY --from=builder /app/dist ./dist
 
 # Expose the port the server runs on
 EXPOSE 8080
