@@ -154,6 +154,15 @@ export class AirtableMCPServer implements IAirtableMCPServer {
           },
         },
         {
+          name: 'list_bases_and_tables',
+          description: 'List all accessible Airtable bases and their tables',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            required: [],
+          },
+        },
+        {
           name: 'list_tables',
           description: 'List all tables in a specific base',
           inputSchema: getInputSchema(ListTablesArgsSchema),
@@ -245,6 +254,11 @@ export class AirtableMCPServer implements IAirtableMCPServer {
             name: base.name,
             permissionLevel: base.permissionLevel,
           })));
+        }
+
+        case 'list_bases_and_tables': {
+          const basesAndTables = await this.airtableService.listBasesAndTables();
+          return formatToolResponse(basesAndTables);
         }
 
         case 'list_tables': {

@@ -69,6 +69,20 @@ export class AirtableService implements IAirtableService {
     return this.fetchFromAPI(`/v0/meta/bases/${baseId}/tables`, BaseSchemaResponseSchema);
   }
 
+  async listBasesAndTables() {
+    const { bases } = await this.listBases();
+    const basesAndTables = await Promise.all(
+      bases.map(async (base) => {
+        const { tables } = await this.getBaseSchema(base.id);
+        return {
+          ...base,
+          tables,
+        };
+      }),
+    );
+    return basesAndTables;
+  }
+
   async listRecords(baseId: string, tableId: string, options: ListRecordsOptions = {}): Promise<AirtableRecord[]> {
     let allRecords: AirtableRecord[] = [];
     let offset: string | undefined;

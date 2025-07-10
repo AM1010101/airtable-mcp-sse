@@ -568,6 +568,7 @@ export type Field = z.infer<typeof FieldSchema>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldSet = Record<string, any>;
 export type AirtableRecord = { id: string, fields: FieldSet };
+export type BasesAndTables = (Base & { tables: Table[] })[];
 
 export interface ListRecordsOptions {
   view?: z.infer<typeof ListRecordsArgsSchema.shape.view>;
@@ -578,6 +579,7 @@ export interface ListRecordsOptions {
 
 export interface IAirtableService {
   listBases(): Promise<ListBasesResponse>;
+  listBasesAndTables(): Promise<BasesAndTables>;
   getBaseSchema(baseId: string): Promise<BaseSchemaResponse>;
   listRecords(baseId: string, tableId: string, options?: ListRecordsOptions): Promise<AirtableRecord[]>;
   getRecord(baseId: string, tableId: string, recordId: string): Promise<AirtableRecord>;
