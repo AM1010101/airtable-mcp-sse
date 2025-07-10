@@ -8,26 +8,28 @@ https://github.com/user-attachments/assets/c8285e76-d0ed-4018-94c7-20535db6c944
 
 ## Usage
 
-To use this server with the Claude Desktop app, add the following configuration to the "mcpServers" section of your `claude_desktop_config.json`:
+1.  **Start the server**:
+    ```bash
+    npm start
+    ```
+    The server will start on port 8080.
 
-```json
-{
-  "mcpServers": {
-    "airtable": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "airtable-mcp-server"
-      ],
-      "env": {
-        "AIRTABLE_API_KEY": "pat123.abc123"
+2.  **Configure your client**:
+    To use this server with a client like the Claude Desktop app, add the following configuration to the "mcpServers" section of your client's configuration file. The API key should be provided in the `Authorization` header as a Bearer token.
+
+    ```json
+    {
+      "mcpServers": {
+        "airtable": {
+          "url": "http://localhost:8080/sse",
+          "headers": {
+            "Authorization": "Bearer pat123.abc123"
+          }
+        }
       }
     }
-  }
-}
-```
-
-Replace `pat123.abc123` with your [Airtable personal access token](https://airtable.com/create/tokens). Your token should have at least `schema.bases:read` and `data.records:read`, and optionally the corresponding write permissions.
+    ```
+    Replace `pat123.abc123` with your [Airtable personal access token](https://airtable.com/create/tokens). Your token should have at least `schema.bases:read` and `data.records:read`, and optionally the corresponding write permissions.
 
 ## Components
 
@@ -147,6 +149,23 @@ The server provides schema information for Airtable bases and tables:
     - Field definitions (ID, name, type, description, options)
     - View definitions (ID, name, type)
   - Automatically discovered from Airtable's metadata API
+
+## Hosting with Docker
+
+To host this server using Docker, follow these steps:
+
+1.  **Build the Docker image**:
+    ```bash
+    docker build -t airtable-mcp-server .
+    ```
+
+2.  **Run the Docker container**:
+    ```bash
+    docker run -p 8080:8080 airtable-mcp-server
+    ```
+    This will start the server and map port 8080 from the container to port 8080 on your host machine. You can then access the server at `http://localhost:8080`.
+
+    For production use, you should run this behind a reverse proxy that provides HTTPS.
 
 ## Contributing
 

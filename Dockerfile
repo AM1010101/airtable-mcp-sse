@@ -27,5 +27,8 @@ WORKDIR /app
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/package.json /app/package-lock.json /app/node_modules /app/
 
+# Expose the port the server runs on
+EXPOSE 8080
+
 # Set the entry point to run the server
 ENTRYPOINT ["node", "dist/index.js"]
