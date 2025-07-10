@@ -57,6 +57,19 @@ https://github.com/user-attachments/assets/c8285e76-d0ed-4018-94c7-20535db6c944
   - No input parameters required
   - Returns base ID, name, and permission level
 
+- **describe_base**
+  - Gets a complete schema for a specific base, including all its tables
+  - Input parameters:
+    - `baseId` (string, required): The ID of the Airtable base
+    - `detailLevel` (string, optional): The amount of detail to get about the tables (`tableIdentifiersOnly`, `identifiersOnly`, or `full`)
+  - Returns the base information along with a list of all its tables and their schemas to the specified detail level.
+
+- **describe_all_bases**
+  - Gets a complete schema for all accessible bases and their tables
+  - Input parameters:
+    - `detailLevel` (string, optional): The amount of detail to get about the tables (`tableIdentifiersOnly`, `identifiersOnly`, or `full`)
+  - Returns a list of all bases, each with a list of all its tables and their schemas to the specified detail level.
+
 - **list_tables**
   - Lists all tables in a specific base
   - Input parameters:

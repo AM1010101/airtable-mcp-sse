@@ -25,6 +25,10 @@ import {
   CreateFieldArgsSchema,
   UpdateFieldArgsSchema,
   SearchRecordsArgsSchema,
+  DescribeBaseArgsSchema,
+  DescribeAllBasesArgsSchema,
+  Table,
+  TableDetailLevelSchema,
   IAirtableService,
   IAirtableMCPServer,
 } from './types.js';
@@ -46,6 +50,38 @@ const formatToolResponse = (data: unknown, isError = false): CallToolResult => {
     }],
     isError,
   };
+};
+
+const formatTableDetails = (table: Table, detailLevel: z.infer<typeof TableDetailLevelSchema>) => {
+  switch (detailLevel) {
+    case 'tableIdentifiersOnly':
+      return {
+        id: table.id,
+        name: table.name,
+      };
+    case 'identifiersOnly':
+      return {
+        id: table.id,
+        name: table.name,
+        fields: table.fields.map((field: { id: string; name: string; }) => ({
+          id: field.id,
+          name: field.name,
+        })),
+        views: table.views.map((view: { id: string; name: string; }) => ({
+          id: view.id,
+          name: view.name,
+        })),
+      };
+    case 'full':
+    default:
+      return {
+        id: table.id,
+        name: table.name,
+        description: table.description,
+        fields: table.fields,
+        views: table.views,
+      };
+  }
 };
 
 export class AirtableMCPServer implements IAirtableMCPServer {
@@ -154,13 +190,14 @@ export class AirtableMCPServer implements IAirtableMCPServer {
           },
         },
         {
-          name: 'list_bases_and_tables',
-          description: 'List all accessible Airtable bases and their tables',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-            required: [],
-          },
+          name: 'describe_base',
+          description: 'Get a complete schema for a specific base, including all its tables, fields, views and information such as colunm descriptions or allowed field types',
+          inputSchema: getInputSchema(DescribeBaseArgsSchema),
+        },
+        {
+          name: 'describe_all_bases',
+          description: 'Get a complete schema for all accessible bases and their tables. This includes all tables, fields, views, and information such as column descriptions or allowed field types.',
+          inputSchema: getInputSchema(DescribeAllBasesArgsSchema),
         },
         {
           name: 'list_tables',
@@ -256,9 +293,15 @@ export class AirtableMCPServer implements IAirtableMCPServer {
           })));
         }
 
-        case 'list_bases_and_tables': {
-          const basesAndTables = await this.airtableService.listBasesAndTables();
-          return formatToolResponse(basesAndTables);
+        case 'describe_base': {
+          const args = DescribeBaseArgsSchema.parse(request.params.arguments);
+          const base = await this.airtableService.describeBase(args.baseId);
+          return formatToolResponse(base);
+        }
+
+        case 'describe_all_bases': {
+          const bases = await this.airtableService.describeAllBases();
+          return formatToolResponse(bases);
         }
 
         case 'list_tables': {

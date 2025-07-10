@@ -69,7 +69,20 @@ export class AirtableService implements IAirtableService {
     return this.fetchFromAPI(`/v0/meta/bases/${baseId}/tables`, BaseSchemaResponseSchema);
   }
 
-  async listBasesAndTables() {
+  async describeBase(baseId: string) {
+    const { bases } = await this.listBases();
+    const base = bases.find((b) => b.id === baseId);
+    if (!base) {
+      throw new Error(`Base with ID ${baseId} not found.`);
+    }
+    const { tables } = await this.getBaseSchema(base.id);
+    return {
+      ...base,
+      tables,
+    };
+  }
+
+  async describeAllBases() {
     const { bases } = await this.listBases();
     const basesAndTables = await Promise.all(
       bases.map(async (base) => {

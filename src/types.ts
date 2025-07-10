@@ -568,7 +568,8 @@ export type Field = z.infer<typeof FieldSchema>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldSet = Record<string, any>;
 export type AirtableRecord = { id: string, fields: FieldSet };
-export type BasesAndTables = (Base & { tables: Table[] })[];
+export type BaseWithTables = (Base & { tables: Table[] });
+export type AllBasesWithTables = BaseWithTables[];
 
 export interface ListRecordsOptions {
   view?: z.infer<typeof ListRecordsArgsSchema.shape.view>;
@@ -577,9 +578,19 @@ export interface ListRecordsOptions {
   sort?: z.infer<typeof ListRecordsArgsSchema.shape.sort>;
 }
 
+export const DescribeBaseArgsSchema = z.object({
+  baseId: z.string(),
+  detailLevel: TableDetailLevelSchema.optional().default('full'),
+});
+
+export const DescribeAllBasesArgsSchema = z.object({
+  detailLevel: TableDetailLevelSchema.optional().default('full'),
+});
+
 export interface IAirtableService {
   listBases(): Promise<ListBasesResponse>;
-  listBasesAndTables(): Promise<BasesAndTables>;
+  describeBase(baseId: string): Promise<BaseWithTables>;
+  describeAllBases(): Promise<AllBasesWithTables>;
   getBaseSchema(baseId: string): Promise<BaseSchemaResponse>;
   listRecords(baseId: string, tableId: string, options?: ListRecordsOptions): Promise<AirtableRecord[]>;
   getRecord(baseId: string, tableId: string, recordId: string): Promise<AirtableRecord>;
